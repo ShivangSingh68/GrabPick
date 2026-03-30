@@ -1,0 +1,40 @@
+I am creating a website GrabPick where users can upload event images and search images  having a particular face
+
+Technology used:
+
+-s3 for storing images
+-sqs queue
+-lambda function for image processing 
+-postres + pgvector for searching similar faces
+-nextjs as the framework
+-auth.js for auth (OAuth)
+
+i have completed the aws part of uploading and processing images and auth part and database connection so dont worry about them.
+Now i want to determine the nextjs project structure for the website having particular structure 
+(All pages are protected routes)
+
+1.  /(landing page)
+  -must have two buttons for creating and joining a event
+  -create event must redirect to /create-event page
+  -join event must redirect to /join-event page
+
+2. /create-event page
+    -must have a form to specify name, description(optional), password, and upload images(upto 10 images)with image less than 5MB
+    -after successful event creation it must redirect to /event/[id]
+
+3. /join-event page
+  -must have a form to fill event id and password
+  -on submitting the form if the credentials are wrong the retry option begins
+  -on correct credentials it is redirected to /event/[id]
+
+4. /event/[id] page
+  -if accessed directly must open a dialog to ask for password (or must be the owner of the event)
+  - must be allowed for a non owner upto a day only then asks for password again
+  -it must have a catalog showing all the event images
+  -must have buttons like delete, sort by size(ascending or descending), add image
+  -also have a seperate button (search by face) which opens a dialog to open a camera or upload a selfie to search all the images having that particular face.
+
+  5. /dasboard
+    -must contain user info
+    -list of all created events
+    -on clicking each events opens a dialog to delete event or change its password.
