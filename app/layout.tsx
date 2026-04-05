@@ -1,11 +1,12 @@
+
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { cn } from "@/lib/utils";
+
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+import { ThemeProvider } from "@/components/providers/theme-provider";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,21 +28,30 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   const session = await auth();
+
   return (
     <SessionProvider session={session}>
-      <html
-        lang="en"
-        className={cn(
-          "h-full",
-          "antialiased",
-          geistSans.variable,
-          geistMono.variable,
-          "font-sans",
-          inter.variable,
-        )}
-      >
-        <body className="min-h-full flex flex-col">{children}</body>
+      <html lang="en" suppressHydrationWarning>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <div className="flex flex-col min-h-screen">
+              <Toaster />
+              <div className="flex-1">
+                {children}
+              </div>
+
+            </div>
+          </ThemeProvider>
+        </body>
       </html>
     </SessionProvider>
   );
