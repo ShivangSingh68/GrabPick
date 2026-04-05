@@ -26,33 +26,29 @@ const s3 = new S3Client({
   },
 });
 
-export async function UploadImagesToS3(
-  formData: FormData,
-  key: string,
-): Promise<PutBucketAbacCommandOutput[]> {
+
+//Key is {imgId}.{file.type}
+export async function UploadImageToS3(
+  file: File,
+  key: string
+): Promise<PutBucketAbacCommandOutput> {
   try {
-    const files = formData.getAll("file") as File[];
-    if (files.length === 0) {
+    if (!file) {
       throw new Error("No files to upload");
     }
-    const response = await Promise.all(
-      files.map(async (file) => {
-        const arrayBuffer = await file.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
-        const fileUploadParams = {
-          Bucket: BUCKET,
-          Key: key,
-          Body: buffer,
-          ContentType: file.type,
-        };
+    const fileUploadParams = {
+      Bucket: BUCKET,
+      Key: key,
+      Body: buffer,
+      ContentType: file.type,
+    };
 
-        const imageParam = new PutObjectCommand(fileUploadParams);
-        return await s3.send(imageParam);
-      }),
-    );
+    const imageParam = new PutObjectCommand(fileUploadParams);
+    return await s3.send(imageParam);
 
-    return response;
   } catch (error) {
     console.error("Error uploading files to S3: ", error);
     throw error;

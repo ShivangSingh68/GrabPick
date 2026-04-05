@@ -38,3 +38,83 @@ Now i want to determine the nextjs project structure for the website having part
     -must contain user info
     -list of all created events
     -on clicking each events opens a dialog to delete event or change its password.
+
+
+ File Structure:
+
+    /app
+│
+├── layout.tsx
+├── page.tsx                     // Landing page
+│
+├── (protected)/
+│   ├── layout.tsx              // Auth wrapper (protect all routes)
+│
+│   ├── create-event/
+│   │   ├── page.tsx
+│   │   ├── actions.ts          // server actions
+│   │   └── components/
+│   │       ├── CreateEventForm.tsx
+│   │       └── ImageUpload.tsx
+│
+│   ├── join-event/
+│   │   ├── page.tsx
+│   │   ├── actions.ts
+│   │   └── components/
+│   │       └── JoinEventForm.tsx
+│
+│   ├── event/
+│   │   └── [id]/
+│   │       ├── page.tsx
+│   │       ├── actions.ts
+│   │       ├── components/
+│   │       │   ├── EventGallery.tsx
+│   │       │   ├── ImageCard.tsx
+│   │       │   ├── UploadImageDialog.tsx
+│   │       │   ├── SearchFaceDialog.tsx
+│   │       │   ├── PasswordDialog.tsx
+│   │       │   └── SortControls.tsx
+│   │       └── hooks/
+│   │           ├── useEventAccess.ts
+│   │           ├── useImageSearch.ts
+│   │           └── useUploadImage.ts
+│
+│   ├── dashboard/
+│   │   ├── page.tsx
+│   │   ├── actions.ts
+│   │   └── components/
+│   │       ├── EventList.tsx
+│   │       ├── EventCard.tsx
+│   │       └── EventSettingsDialog.tsx
+│
+│
+├── api/                        // Only when needed
+│   ├── search-face/route.ts
+│   ├── upload/route.ts
+│   └── webhook/route.ts        // SQS / Lambda callbacks (optional)
+│
+├── components/
+│   ├── ui/                     // buttons, dialogs, inputs (shadcn or custom)
+│   ├── Navbar.tsx
+│   └── ProtectedRoute.tsx
+│
+├── hooks/
+│   ├── useAuth.ts ❌
+│   ├── useDebounce.ts❌
+│   └── useLocalStorage.ts
+│
+├── lib/
+│   ├── db.ts
+│   ├── auth.ts
+│   ├── s3.ts
+│   ├── sqs.ts
+│   ├── embeddings.ts
+│   ├── permissions.ts
+│   └── utils.ts
+│
+├── types/
+│   ├── event.ts
+│   ├── image.ts
+│   └── user.ts
+│
+└── middleware.ts              // route protection

@@ -3,54 +3,86 @@
 // HomePage()
 // handleCreateClick()
 // handleJoinClick()
-import { Button } from "@base-ui/react";
-import { FormEvent, useState } from "react";
-import { main, deleteEvent, deleteImg, getImages } from "./api/home/route";
+// import { main, deleteEvent, deleteImg, getImages } from "./api/home/route";
 import Image from "next/image";
+import React, { useState, ChangeEvent } from "react";
+import { createEvent } from "./create-event/actions";
+import { generateEmbedding } from "@/lib/embeddings";
+import { signOut } from "next-auth/react";
 type aplha = {
   key: string,
   url: string,
 }
-export default function Home() {
-  const [file, setFile] = useState<File | null>(null);
-  const [images, setImages] = useState<aplha[]>([]);
-  const eventId = "123";
-  const forData = new FormData();
-  if(file) {
-    forData.append("file", file!);
-  }
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    const payload = {
-      // bucket: "grabpick-images",
-      key: `event${eventId}/${file?.name}`,
-    };
-    main(forData, payload.key);
+export default function Page() {
+const [files, setFiles] = useState<File[]>([]);
+  const [preview, setPreview] = useState<string[]>([]);
 
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+
+    const selectedFiles = Array.from(e.target.files);
+    setFiles(selectedFiles);
+
+    // Generate preview URLs
+    const previewUrls = selectedFiles.map((file) =>
+      URL.createObjectURL(file)
+    );
+    setPreview(previewUrls);
+  };
+
+  const handleUpload = async () => {
+    if (files.length === 0) {
+      alert("Please select files first");
+      return;
+    }
+
+    const response = await generateEmbedding(files[0]); 
+    // await createEvent({
+    //   name: "name",
+    //   description: "asasd",
+    //   password: "123",
+    //   images: files
+    // })
+    console.log(response);
+  };
+
+  const handleLogout = async() => {
+    await signOut();
+    // revalidatePath('/');
   }
-  const DeleteBtn = async () => {
-    await deleteImg(`event${eventId}/aws.webp`)
-  }
-  const Getbtn = async () => {
-    const imgs = await getImages(eventId);
-    setImages(imgs);
-  }
-  const DeleteEventBtn = () => {
-    deleteEvent(`event${eventId}`);
-  }
+
   return (
-  <>
-    <h1>Hello</h1>
-    <form action="#">
-      <input type="file" name="" id="" onChange={(e) => setFile(e.target.files![0])}/>
-      <Button className="bg-blue-700 text-white" type="submit" onClick={(e) => handleSubmit(e)}>Submit</Button>
-    </form>
-    <Button className="w-xl bg-red-700 text-white" onClick={DeleteBtn}>Delete Image</Button>
-    <Button className="bg-yellow-600 text-white" onClick= {Getbtn}>Get All Images</Button>
-    <Button className="w-xl bg-red-700 text-white" onClick={DeleteEventBtn}>Delete Event</Button>
-    {images.map((img) => {
-  return <img src={img.url} key={img.url} height="100px" width="100px"/>;
-})}
-  </>
+    <div style={{ padding: "20px" }}>
+      <h2>Upload Multiple Images</h2>
+
+      <input
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={handleFileChange}
+      />
+
+      <br /><br />
+
+      <button onClick={handleUpload}>
+        Upload Images
+      </button>
+
+      {/* Preview */}
+      <div style={{ marginTop: "20px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+        {preview.map((src, index) => (
+          <img
+            key={index}
+            src={src}
+            alt="preview"
+            width={100}
+            height={100}
+            style={{ objectFit: "cover", borderRadius: "8px" }}
+          />
+        ))}
+      <h1 className="bg-green-400" >Hello</h1>
+      </div>
+      <button className="bg-blue-500" onClick={handleLogout}>Logout</button>
+    </div>
   );
 }

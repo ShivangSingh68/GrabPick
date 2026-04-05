@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth"
 
-import { db } from "@/lib/db"
+import {db} from "@/lib/db"
 
 export const getUserById = async(id: string) => {
     try {

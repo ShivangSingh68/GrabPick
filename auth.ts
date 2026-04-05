@@ -2,7 +2,7 @@ import NextAuth from "next-auth"
 import authConfig from "./auth.config"
 import { db } from "./lib/db"
 import {PrismaAdapter} from "@auth/prisma-adapter";
-import { getAccountByUserId, getUserById } from "./modules/auth/actions";
+import { getUserById } from "./modules/auth/actions";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     callbacks:{
@@ -35,7 +35,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                                 tokenType: account.token_type,
                                 scope: account.scope,
                                 idToken: account.id_token,
-                                sessionState: account.session_state,
+                                sessionState: account.sessionState,
                             }
                         }
                     }
@@ -58,7 +58,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 if(!existingAccount) {
                     await db.account.create({
                         data: {
-                            userId: user.id,
+                            userId: existingUser.id,
                             type: account.type,
                             provider: account.provider,
                             providerAccountId: account.providerAccountId,
@@ -86,8 +86,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             if(!existingUser)
                 return token;
 
-            const existingAccount = await getAccountByUserId(existingUser.id);
-
             token.name = existingUser.name;
             token.email = existingUser.email;
             
@@ -102,7 +100,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return session;
         },
     },
-    secret: process.env.BETTER_AUTH_SECRET,
+    secret: process.env.AUTH_SECRET,
     adapter: PrismaAdapter(db),
     session: {strategy: "jwt"},
     ...authConfig,
